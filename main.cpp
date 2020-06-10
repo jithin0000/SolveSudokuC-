@@ -90,11 +90,83 @@ map<string, string> EliminateGridValue(const vector<string> &boxes,
     return grid_values;
 }
 
-
-void OnlyChoice(const vector<string>& boxes, vector<vector<vector<string>>>& unit_list, map<string,string> grid_values)
+map<string,string> OnlyChoice(const vector<string>& boxes,
+ vector<vector<vector<string>>>& unit_list, map<string,string> grid_values)
 {
+    for (int i = 0; i < unit_list.size(); i++)
+    {
+        for(vector<string> units : unit_list.at(i))
+        {
+            for(auto digit : "123456789"){
+                vector<string> singles;
+                for(string value : units){
+                    if (grid_values[value].find(digit) != string::npos)
+                    {
+                       singles.push_back(value);
+                    }
+                    
+                }
+
+                if (singles.size() == 1)
+                {
+                    grid_values[singles[0]] = digit;
+                }
+                
+
+            }
+        }
+    }
+
+    return grid_values;
+    
 
 }
+
+map<string,string> ReducePuzzle(map<string,string>& grid_values, const vector<string>& boxes,
+ map<string, set<string>>& peers,  vector<vector<vector<string>>>& unit_list )
+{
+    
+    bool stalled = false;
+
+    while (!stalled)
+    {
+       int solvued_values_before = 0;
+
+       for (auto i = grid_values.begin(); i != grid_values.end(); i++)
+       {
+           if (i->second.length() == 1)
+           {
+               solvued_values_before++;
+           }
+           
+       }
+       grid_values = EliminateGridValue(boxes, grid_values, peers);
+       grid_values = OnlyChoice(boxes, unit_list, grid_values);
+
+       int solvued_values_after = 0;
+
+       for (auto i = grid_values.begin(); i != grid_values.end(); i++)
+       {
+           if (i->second.length() == 1)
+           {
+               solvued_values_after++;
+           }
+           
+       }
+
+       stalled = solvued_values_before == solvued_values_after;
+        
+
+
+        
+    }
+
+    return grid_values;
+    
+
+}
+
+
 
 void DisplayGrid(map<string, string> &grid)
 {
@@ -248,16 +320,17 @@ map<string, set<string>> peers;
 
     /**  ----------------------- Eliminate Strategy -----------------------------------------------**/
     /** Go through All boxes , Where there is a box with single value eliminate that from set of values of all its peers **/
-    auto eliminated_values = EliminateGridValue(boxes, grid_values,peers);
-    DisplayGrid(eliminated_values);
-    /** input is values from grid , **/
     /** return eliminated values **/
+    /** input is values from grid , **/
+    auto eliminated_values = EliminateGridValue(boxes, grid_values,peers);
+  
 
     /**  ----------------------- Only Choice Strategy -----------------------------------------------**/
     /** Go through All boxes ,  **/
-    OnlyChoice(boxes, unit_list,eliminated_values);
     /** input is values from grid , **/
-    /** return eliminated values **/
+    /** return only choice values **/
+    map<string,string> only_choice_values = OnlyChoice(boxes, unit_list,eliminated_values);
+    DisplayGrid(only_choice_values);
 
     /**  ----------------------- Constrain Propagation -----------------------------------------------**/
     /** use strategy elimination and only choice repeatedly **/
@@ -265,6 +338,8 @@ map<string, set<string>> peers;
     /** if  solved values sames after two iteration then stop it **/
     /** Input : Values **/
     /** Outpu Solved Values **/
+    map<string,string> values = ReducePuzzle(only_choice_values,boxes, peers, unit_list);
+    DisplayGrid(values);
 
     return 0;
 }
