@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <map>
 
 using namespace std;
 
@@ -14,10 +15,10 @@ vector<string> Cross(string rows, string cols){
         for (int j = 0; j < cols.length(); j++)
         {
             auto val = string{rows[i]}+string{cols[j]};
-            cout << val;
+            // cout << val;
             cross_product.push_back(val);
         }
-        cout << endl;
+        // cout << endl;
         
        
     }
@@ -26,6 +27,62 @@ vector<string> Cross(string rows, string cols){
     
 
 }
+
+map<string,string> GenerateGrid(const vector<string>& boxes,const string& grid){
+
+
+    if (grid.length() != 81)
+    {
+        cout << "Invalid file Length " << endl;
+    }
+    map<string,string> grid_value;
+
+    for (int i = 0; i < boxes.size(); i++)
+    {
+        grid_value[boxes[i]] = grid[i];
+    }
+
+    return grid_value;
+
+}
+
+void DisplayGrid(map<string,string>& grid){
+
+    int count = 0;
+    for (auto i = grid.begin(); i != grid.end(); i++)
+    {
+        /** first add all possible values as value of box eg ; A1 : 12345789 **/
+       if (i->second == ".")
+       {
+           grid[i->first] = "123456789";
+       }
+       
+
+        count++;
+        cout<< i->second << " " ;
+        if (count %3 == 0)
+        {
+            cout<< " | ";
+        }
+        if (count %9 == 0)
+        {
+            cout << endl;
+        }
+        if (count %27 == 0)
+        {
+            cout << endl;
+        }
+        
+        
+        
+    }
+    
+    
+}
+
+
+
+
 
 int main(){
 
@@ -84,14 +141,15 @@ int main(){
     for(vector<vector<string>> unit: unit_list){
         cout << "size of units are : " << unit.size() << endl;
     }
-    
-    
     /** # Generate peers # **/
 
 
       /** ### --- Create Board --- ### **/
     /** ## --- Grid, grid is unsolved sudoku string---  Assign Value To Boxes, eg: [A1:9 , A2:2 ...]## **/
-    /** first add all possible values as value of box eg ; A1 : 12345789 **/
+    map<string,string> grid_values = GenerateGrid(boxes,grid);
+
+    DisplayGrid(grid_values);
+    
             // if value is . then append all values [12346789] otherwise remaining values 
     /** # Check the length of grid is 81 else throw error # **/
     /** # --- Display Board -- # **/
